@@ -1,0 +1,775 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14172a; --ink2:#1b1f36; --ink3:#232842; --rule:#2f3556; --rule2:#3d446b;
+  --fg:#e9ebf7; --dim:#959dc5; --dim2:#6f77a0;
+  --warn:#ff6b6b; --warn-soft:rgba(255,107,107,.16);
+  --c-dpm19:#48cae4; --c-dpm20:#ffc857; --c-pt08:#34d399; --c-tt01:#c084fc; --c-pt07:#fb7185;
+  --namew:212px; --rowh:32px; --gap:6px;
+  --ease:cubic-bezier(.4,.1,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ink); color:var(--fg);
+  font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+  font-size:15px; line-height:1.5;
+  font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1360px;margin:0 auto;padding:28px 22px 64px}
+h1,h2,h3{font-family:'Archivo','Helvetica Neue',Arial,sans-serif;margin:0;font-variation-settings:'wdth' 112}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--c-dpm19);outline-offset:2px;border-radius:3px}
+
+/* ---------- masthead ---------- */
+.masthead{border-bottom:1px solid var(--rule);padding-bottom:20px;margin-bottom:22px}
+h1{font-size:clamp(2.1rem,5.4vw,3.5rem);font-weight:700;letter-spacing:-.032em;line-height:.98;
+   font-variation-settings:'wdth' 118}
+.lede{max-width:64ch;color:var(--dim);margin:12px 0 0;font-size:.97rem}
+.ledger{display:flex;flex-wrap:wrap;gap:0;margin-top:22px;border-top:1px solid var(--rule);padding-top:14px}
+.led{padding:0 22px 0 0;margin-right:22px;border-right:1px solid var(--rule)}
+.led:last-child{border-right:none;margin-right:0}
+.led b{display:block;font-family:'Archivo',sans-serif;font-size:1.7rem;font-weight:700;letter-spacing:-.02em;line-height:1.1;
+  font-variation-settings:'wdth' 108}
+.led span{font-size:.8rem;color:var(--dim2)}
+.led.hot b{color:var(--warn)}
+
+/* ---------- controls ---------- */
+.controls{display:flex;flex-wrap:wrap;gap:16px 26px;align-items:flex-end;margin-bottom:8px}
+.ctl{display:flex;flex-direction:column;gap:7px}
+.ctl>label{font-size:.75rem;color:var(--dim2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--rule2);border-radius:999px;padding:4px 11px;font-size:.8rem;color:var(--dim);
+  transition:background .18s var(--ease),color .18s var(--ease),border-color .18s var(--ease);display:flex;align-items:center;gap:6px}
+.chip:hover{border-color:var(--fg);color:var(--fg)}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
+.chip .dot{background:var(--ch,currentColor)}
+.chip[aria-pressed=true]{background:var(--ch,var(--fg));color:#14172a;font-weight:600;border-color:transparent}
+.chip[aria-pressed=true] .dot{background:rgba(0,0,0,.42)}
+select{background:var(--ink2);color:var(--fg);border:1px solid var(--rule2);border-radius:6px;padding:6px 10px;font-size:.85rem}
+.seg{display:flex;border:1px solid var(--rule2);border-radius:7px;overflow:hidden}
+.seg button{padding:6px 14px;font-size:.82rem;color:var(--dim);transition:background .2s var(--ease),color .2s var(--ease)}
+.seg button[aria-pressed=true]{background:var(--fg);color:var(--ink);font-weight:600}
+.playbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.play{border:1px solid var(--rule2);border-radius:7px;padding:6px 15px;font-size:.85rem;display:flex;align-items:center;gap:9px;
+  transition:border-color .2s var(--ease),background .2s var(--ease)}
+.play:hover{border-color:var(--fg);background:var(--ink2)}
+.play .tri{width:0;height:0;border-left:8px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent}
+.play .sq{width:8px;height:8px;background:currentColor}
+.readout{font-size:.82rem;color:var(--dim);min-height:1.3em}
+.readout b{color:var(--fg);font-weight:600}
+
+/* ---------- chart ---------- */
+.panel{border:1px solid var(--rule);border-radius:10px;background:var(--ink2);margin-top:18px;overflow:hidden}
+.scroll{overflow-x:auto;overflow-y:visible;position:relative}
+.inner{min-width:1180px;--mw:1180px;min-width:var(--mw);position:relative}
+
+.ruler{display:grid;grid-template-columns:var(--namew) 1fr;position:sticky;top:0;z-index:6;
+  background:var(--ink3);border-bottom:1px solid var(--rule2)}
+.ruler-name{position:sticky;left:0;z-index:7;background:var(--ink3);padding:9px 14px;font-size:.76rem;color:var(--dim2);
+  border-right:1px solid var(--rule2);display:flex;align-items:flex-end}
+.ruler-track{position:relative;height:46px}
+.mtick{position:absolute;top:0;bottom:0;border-left:1px solid var(--rule);padding:6px 0 0 6px;
+  font-size:.71rem;color:var(--dim2);white-space:nowrap;opacity:0;transform:translateY(-5px)}
+.mtick.in{animation:tickIn .34s var(--ease) forwards}
+@keyframes tickIn{to{opacity:1;transform:none}}
+.mtick .mo{display:block;color:var(--dim);font-weight:500;font-size:.74rem}
+.mtick.newyear{border-left:1px solid var(--rule2)}
+.mtick.newyear .yr{display:block;color:var(--fg);font-weight:600;font-size:.68rem;margin-top:1px}
+
+.lane{display:grid;grid-template-columns:var(--namew) 1fr;border-bottom:1px solid var(--rule);
+  transition:opacity .28s var(--ease)}
+.lane:last-child{border-bottom:none}
+.lane.dim{opacity:.24}
+.lane-name{position:sticky;left:0;z-index:4;background:var(--ink2);border-right:1px solid var(--rule2);
+  padding:11px 14px;display:flex;flex-direction:column;gap:3px;justify-content:center;transition:background .2s var(--ease)}
+.lane:hover .lane-name{background:var(--ink3)}
+.lane-name .nm{font-size:.88rem;font-weight:500;line-height:1.25}
+.lane-name .sub{font-size:.72rem;color:var(--dim2);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.flag{color:var(--warn);border:1px solid rgba(255,107,107,.45);border-radius:999px;padding:0 6px;font-size:.68rem;
+  background:var(--warn-soft)}
+.lane-track{position:relative;padding:16px 0 8px}
+.rail{position:absolute;top:5px;height:5px;border-radius:3px;background:var(--warn);z-index:3;
+  opacity:0;transform:scaleX(.1);transform-origin:left center;cursor:help}
+.rail.in{animation:railIn .46s var(--ease) forwards}
+@keyframes railIn{0%{opacity:0;transform:scaleX(.1)}70%{opacity:1;box-shadow:0 0 14px 3px rgba(255,107,107,.75)}
+  100%{opacity:1;transform:scaleX(1);box-shadow:0 0 0 0 rgba(255,107,107,0)}}
+.rail:hover{filter:brightness(1.2);box-shadow:0 0 12px 2px rgba(255,107,107,.6)}
+
+.band{position:absolute;top:0;bottom:0;background:rgba(255,107,107,.11);border-left:1px dashed rgba(255,107,107,.45);
+  border-right:1px dashed rgba(255,107,107,.45);opacity:0;pointer-events:none;z-index:0}
+.band.in{animation:bandIn .5s var(--ease) forwards}
+@keyframes bandIn{0%{opacity:0}60%{opacity:1;background:rgba(255,107,107,.34)}100%{opacity:1}}
+.subrow{position:relative;height:var(--rowh);margin-bottom:var(--gap)}
+.subrow:last-child{margin-bottom:0}
+
+.bar{position:absolute;top:0;height:var(--rowh);border-radius:5px;display:flex;align-items:center;gap:7px;
+  padding:0 9px;overflow:hidden;cursor:pointer;z-index:2;
+  transform-origin:left center;transform:scaleX(.02);opacity:0;
+  transition:filter .2s var(--ease),box-shadow .2s var(--ease),opacity .3s var(--ease)}
+.bar.in{animation:barDraw .52s var(--ease) forwards}
+@keyframes barDraw{0%{transform:scaleX(.02);opacity:0}55%{opacity:1}100%{transform:scaleX(1);opacity:1}}
+.bar .lbl{font-size:.775rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#0f1120}
+.bar .tag{flex:none;width:17px;height:17px;border-radius:4px;display:grid;place-items:center;
+  font-size:.6rem;font-weight:700;background:rgba(0,0,0,.28);color:rgba(255,255,255,.94)}
+.bar:hover{filter:brightness(1.14);box-shadow:0 0 0 2px var(--fg)}
+.bar.sel{box-shadow:0 0 0 2px var(--fg)}
+.bar.off{opacity:.15!important;filter:saturate(.5)}
+.bar.live{opacity:1!important;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 20px 3px rgba(255,255,255,.3)}
+.bar.el{opacity:.88}
+.bar.el.in{animation:barDrawEl .52s var(--ease) forwards}
+@keyframes barDrawEl{0%{transform:scaleX(.02);opacity:0}55%{opacity:.88}100%{transform:scaleX(1);opacity:.88}}
+
+.cursor{position:absolute;top:0;bottom:0;width:2px;background:var(--fg);z-index:8;pointer-events:none;
+  box-shadow:0 0 12px rgba(233,235,247,.5);display:none}
+.cursor.on{display:block}
+.cursor::before{content:'';position:absolute;top:-4px;left:-4px;width:10px;height:10px;background:var(--fg);
+  transform:rotate(45deg)}
+.today{position:absolute;top:0;bottom:0;width:1px;background:repeating-linear-gradient(180deg,rgba(233,235,247,.55) 0 5px,transparent 5px 11px);
+  z-index:5;pointer-events:none;display:none}
+.today.on{display:block}
+.todaytag{position:absolute;bottom:3px;font-size:.63rem;color:var(--ink);white-space:nowrap;
+  background:var(--fg);padding:1px 6px;border-radius:3px;transform:translateX(-50%);z-index:2;font-weight:600}
+
+/* ---------- grid view ---------- */
+.gridview{padding:4px 0}
+.grow{display:grid;grid-template-columns:var(--namew) 1fr;border-bottom:1px solid var(--rule)}
+.grow:last-child{border-bottom:none}
+.gname{position:sticky;left:0;z-index:4;background:var(--ink2);border-right:1px solid var(--rule2);padding:9px 14px;
+  font-size:.86rem;font-weight:500;display:flex;align-items:center}
+.gcells{display:grid}
+.gcell{height:38px;border-right:1px solid var(--rule);display:grid;place-items:center;font-size:.8rem;font-weight:600;
+  color:var(--ink);cursor:default;transform:scale(.4);opacity:0}
+.gcell.in{animation:cellIn .3s var(--ease) forwards}
+@keyframes cellIn{to{transform:scale(1);opacity:1}}
+.gcell.z{color:var(--dim2);font-weight:400}
+.gcell:hover{filter:brightness(1.18)}
+.ghead{display:grid;grid-template-columns:var(--namew) 1fr;background:var(--ink3);border-bottom:1px solid var(--rule2);
+  position:sticky;top:0;z-index:6}
+.ghead .gname{background:var(--ink3);font-size:.76rem;color:var(--dim2);font-weight:400}
+.ghead .gcell{height:auto;padding:8px 0;background:none!important;color:var(--dim2);font-size:.7rem;font-weight:500;
+  transform:none;opacity:1;line-height:1.25;text-align:center}
+
+/* ---------- detail ---------- */
+.detail{margin-top:18px;border:1px solid var(--rule);border-radius:10px;background:var(--ink2);padding:0;
+  max-height:0;overflow:hidden;opacity:0;transition:max-height .38s var(--ease),opacity .28s var(--ease),padding .38s var(--ease)}
+.detail.open{max-height:620px;opacity:1;padding:20px 22px}
+.detail h3{font-size:1.15rem;font-weight:700;letter-spacing:-.015em}
+.dmeta{display:flex;flex-wrap:wrap;gap:8px;margin:11px 0 0}
+.pill{border:1px solid var(--rule2);border-radius:999px;padding:3px 11px;font-size:.78rem;color:var(--dim);
+  display:flex;align-items:center;gap:6px}
+.pill .dot{width:8px;height:8px;border-radius:50%}
+.dsec{margin-top:18px;border-top:1px solid var(--rule);padding-top:14px}
+.dsec h4{margin:0 0 9px;font-size:.8rem;color:var(--dim2);font-weight:500}
+.clash{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule);font-size:.85rem}
+.clash:last-child{border-bottom:none}
+.clash .sw{width:4px;height:26px;border-radius:2px;flex:none}
+.clash .who{color:var(--dim);font-size:.78rem}
+.close{float:right;color:var(--dim2);font-size:1.4rem;line-height:1;padding:0 4px}
+.close:hover{color:var(--fg)}
+
+/* ---------- footer ---------- */
+.foot{margin-top:34px;display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:28px;
+  border-top:1px solid var(--rule);padding-top:22px}
+.foot h3{font-size:.95rem;font-weight:600;margin-bottom:11px}
+.foot ul{margin:0;padding:0;list-style:none;font-size:.82rem;color:var(--dim)}
+.foot li{padding:5px 0;display:flex;gap:9px;align-items:flex-start}
+.foot .sw{width:13px;height:13px;border-radius:3px;flex:none;margin-top:3px}
+.foot .k{color:var(--fg);font-weight:500}
+.note{font-size:.8rem;color:var(--dim);line-height:1.55}
+.note b{color:var(--fg);font-weight:600}
+.tray{margin-top:10px;border:1px dashed var(--rule2);border-radius:8px;padding:11px 13px;font-size:.8rem;color:var(--dim)}
+.tray .t{color:var(--fg);font-weight:500;display:block;margin-bottom:5px;font-size:.82rem}
+
+.tip{position:fixed;z-index:50;background:#0d0f1c;border:1px solid var(--rule2);border-radius:8px;padding:9px 12px;
+  font-size:.79rem;max-width:270px;pointer-events:none;opacity:0;transform:translateY(4px);
+  transition:opacity .14s,transform .14s;box-shadow:0 10px 34px rgba(0,0,0,.55);line-height:1.45}
+.tip.on{opacity:1;transform:none}
+.tip .tt{font-weight:600;margin-bottom:3px;display:block}
+.tip .td{color:var(--dim)}
+.empty{padding:38px 20px;text-align:center;color:var(--dim2);font-size:.9rem}
+
+@media (max-width:640px){
+  :root{--namew:132px}
+  .wrap{padding:20px 13px 48px}
+  .ledger{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+  .led{padding:0;margin:0;border-right:none}
+  .led b{font-size:1.4rem}
+  .led span{font-size:.76rem}
+  h1{font-size:2rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  .bar{transform:none!important;opacity:1!important}
+  .bar.el{opacity:.88!important}
+  .mtick,.band,.gcell{opacity:1!important;transform:none!important}
+}
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <h1>The teaching year</h1>
+    <p class="lede"><span id="span">Every doctoral course</span>, laid out by who teaches it. Terms run
+      concurrently across cohorts, so a faculty member can be committed to two or three classrooms in the same week.
+      Those collisions are marked in red.</p>
+    <div class="ledger" id="ledger"></div>
+  </header>
+
+  <div class="controls">
+    <div class="ctl">
+      <label for="view">Arrange by</label>
+      <div class="seg" id="view" role="group">
+        <button data-view="faculty" aria-pressed="true">Faculty</button>
+        <button data-view="cohort" aria-pressed="false">Cohort</button>
+        <button data-view="grid" aria-pressed="false">Month load</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <label>Cohorts</label>
+      <div class="chips" id="cohorts"></div>
+    </div>
+    <div class="ctl">
+      <label>Course kind</label>
+      <div class="chips" id="kinds"></div>
+    </div>
+    <div class="ctl">
+      <label for="fac">Focus</label>
+      <select id="fac"></select>
+    </div>
+    <div class="ctl">
+      <label>Overlaps only</label>
+      <div class="chips"><button class="chip plain" id="clashOnly" aria-pressed="false">Show clashes</button></div>
+    </div>
+  </div>
+
+  <div class="playbar" style="margin-top:18px">
+    <button class="play" id="playBtn"><span class="tri" id="playIcon"></span><span id="playTxt">Walk the year</span></button>
+    <span class="readout" id="readout"></span>
+  </div>
+
+  <div class="panel">
+    <div class="scroll" id="scroll">
+      <div class="inner" id="inner">
+        <div class="ruler"><div class="ruler-name" id="rulerName">Faculty member</div>
+          <div class="ruler-track" id="rulerTrack"></div></div>
+        <div id="lanes"></div>
+        <div class="today" id="todayLine"></div>
+        <div class="cursor" id="cursor"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail" id="detail"></div>
+
+  <div class="foot">
+    <div>
+      <h3>Cohorts</h3>
+      <ul id="legCohort"></ul>
+    </div>
+    <div>
+      <h3>Course kinds</h3>
+      <ul id="legKind"></ul>
+    </div>
+    <div>
+      <h3>Reading the chart</h3>
+      <p class="note">A bar spans the full term its course sits in, so an overlap means two commitments share
+        teaching weeks, not necessarily the same slot. Stacked bars in one lane are simultaneous;
+        the red wash marks exactly which weeks are doubled up.</p>
+      <p class="note" style="margin-top:11px">DPM 19 and DPM 20 are both second-year cohorts, but one runs on
+        terms and the other on semesters. Those two calendars drifting against each other, and against the
+        practice and teaching tracks, is where most of the doubling up comes from.</p>
+    </div>
+    <div>
+      <h3 id="notesHead">Source sheet</h3>
+      <div id="notes"></div>
+    </div>
+  </div>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+const DATA = {"records":[{"course":"Contemporary Theories for Information Systems Research","term":"Term 4","faculty":"Prof. Satish Krishnan","type":"AC","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Mathematics for Information Systems Research","term":"Term 4","faculty":"Prof. M P Sebastian","type":"E","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Systems Thinking for Sustainability","term":"Term 4","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Accessible Information System","term":"Term 4","faculty":"Prof. Sreejith A","type":"E","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Methods in Management Research","term":"Term 5","faculty":"Prof. Anindita Paul","type":"AC","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"Artificial Intelligence for Business and Management Research","term":"Term 5","faculty":"Prof. M P Sebastian","type":"E","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"Design Science Research","term":"Term 5","faculty":"Prof. Kalpit Sharma","type":"E","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"AI Security","term":"Term 5","faculty":"Prof. Sreejith A","type":"E","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"Topics in Information Systems Research","term":"Term 6","faculty":"Prof. Vidushi Pandey","type":"AC","program":"DPM 19","start":"2026-12-30","end":"2027-03-12","label":"30 December 2026 to 12 March 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Term 6","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 19","start":"2026-12-30","end":"2027-03-12","label":"30 December 2026 to 12 March 2027","exact":true},{"course":"Responsible AI : Ethics, Governance, and Society","term":"Term 6","faculty":"Prof. Anindita Paul","type":"E","program":"DPM 19","start":"2026-12-30","end":"2027-03-12","label":"30 December 2026 to 12 March 2027","exact":true},{"course":"Management Information Systems","term":"Semester 1","faculty":"Prof. Radhakrishna Pillai","type":"MF","program":"DPM 20","start":"2026-06-29","end":"2026-10-30","label":"29 June 2026 to 30 October 2026","exact":true},{"course":"Management Information Systems","term":"Semester 1","faculty":"Prof. Vidushi Pandey","type":"MF","program":"DPM 20","start":"2026-06-29","end":"2026-10-30","label":"29 June 2026 to 30 October 2026","exact":true},{"course":"Management Information Systems","term":"Semester 1","faculty":"Prof. Swati Jain","type":"MF","program":"DPM 20","start":"2026-06-29","end":"2026-10-30","label":"29 June 2026 to 30 October 2026","exact":true},{"course":"Perspectives in Information Systems Research","term":"Semester 2","faculty":"Prof. Vidushi Pandey","type":"AC","program":"DPM 20","start":"2026-11-12","end":"2027-03-13","label":"12 November 2026 to 13 March 2027","exact":true},{"course":"Contemporary Theories for Information Systems Research","term":"Semester 2","faculty":"Prof. Satish Krishnan","type":"AC","program":"DPM 20","start":"2026-11-12","end":"2027-03-13","label":"12 November 2026 to 13 March 2027","exact":true},{"course":"Methods in Management Research","term":"Semester 2","faculty":"Prof. Kalpit Sharma","type":"AC
+","program":"DPM 20","start":"2026-11-12","end":"2027-03-13","label":"12 November 2026 to 13 March 2027","exact":true},{"course":"Digital Transformation","term":"Semester 3","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Design Science Research","term":"Semester 3","faculty":"Prof. Kalpit Sharma","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Accessible Information System","term":"Semester 3","faculty":"Prof. Sreejith A","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"AI Security","term":"Semester 3","faculty":"Prof. Sreejith A","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Perspectives on AI in Management Research","term":"Semester 3","faculty":"Prof. Swati Jain","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Responsible AI : Ethics, Governance, and Society","term":"Semester 3","faculty":"Prof. Anindita Paul","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Semester 3","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Systems Thinking for Sustainability","term":"Semester 3","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Perspectives in Information Systems Research","term":"Semester 1","faculty":"Prof. Anindita Paul","type":"AC","program":"DPM-PT 07","start":"2025-10-01","end":"2026-03-31","label":"October 2025 to March 2026","exact":false},{"course":"AI Security","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-PT 07","start":"2026-04-01","end":"2026-09-30","label":"April 2026 to September 2026","exact":false},{"course":"Perspectives in Information Systems Research","term":"Semester 2","faculty":"Prof. Anindita Paul","type":"AC","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Accessible Information System","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"AI Security","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Perspectives on AI in Management Research","term":"Semester 2","faculty":"Prof. Swati Jain","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Systems Thinking for Sustainability","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Digital Transformation","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Semester 2","faculty"
+:"Prof. Radhakrishna Pillai","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Perspectives in Information Systems Research","term":"Semester 2","faculty":"Prof. Swati Jain","type":"AC","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Accessible Information System","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"AI Security","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Perspectives on AI in Management Research","term":"Semester 2","faculty":"Prof. Swati Jain","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Digital Transformation","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Systems Thinking for Sustainability","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true}],"dupes":[],"emptyTerms":[]};
+const DAY = 864e5;
+const AX = (()=>{                       // span the whole sheet, whatever dates it holds
+  const d = DATA.records.filter(r=>r.start);
+  const lo = new Date(Math.min(...d.map(r=>+new Date(r.start+'T00:00:00'))));
+  const hi = new Date(Math.max(...d.map(r=>+new Date(r.end+'T00:00:00'))));
+  return [new Date(lo.getFullYear(),lo.getMonth(),1), new Date(hi.getFullYear(),hi.getMonth()+1,0)];
+})();
+const AX_START = AX[0], AX_END = AX[1];
+const TOTAL = Math.round((AX_END-AX_START)/DAY)+1;
+const _n = new Date(), TODAY = new Date(_n.getFullYear(),_n.getMonth(),_n.getDate());
+const TODAY_IN = TODAY>=AX_START && TODAY<=AX_END;
+
+const COHORTS = {
+  'DPM 19'   :{c:'var(--c-dpm19)',hex:'#48cae4',cls:'on-19',  desc:'Second year, on terms 4 to 6'},
+  'DPM 20'   :{c:'var(--c-dpm20)',hex:'#ffc857',cls:'on-20',  desc:'Second year, on semesters 1 to 3'},
+  'DPM-PT 07':{c:'var(--c-pt07)', hex:'#fb7185',cls:'on-pt07',desc:'Practice track, seventh cohort'},
+  'DPM-PT 08':{c:'var(--c-pt08)', hex:'#34d399',cls:'on-pt08',desc:'Practice track, eighth cohort'},
+  'DPM-TT 01':{c:'var(--c-tt01)', hex:'#c084fc',cls:'on-tt01',desc:'Teaching track, first cohort'}
+};
+const KINDS = {AC:{n:'Area core',d:'Required within the specialisation'},
+               E :{n:'Elective', d:'Chosen by the scholar'},
+               MF:{n:'Management foundation',d:'Common grounding, team-taught'}};
+
+const d2i = d => Math.round((new Date(d+'T00:00:00') - AX_START)/DAY);
+const pct = i => (i/TOTAL)*100;
+const fmtDay = i => new Date(AX_START.getTime()+i*DAY).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+const fmt = d => new Date(d+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+
+let rows = DATA.records.filter(r=>r.start).map((r,i)=>({...r,id:i,s:d2i(r.start),e:d2i(r.end)}));
+let undated = DATA.records.filter(r=>!r.start);
+const DUPES = DATA.dupes, EMPTY_TERMS = DATA.emptyTerms;
+
+const state = {view:'faculty', cohorts:new Set(Object.keys(COHORTS)), kinds:new Set(['AC','E','MF']),
+               fac:'all', clashOnly:false, sel:null, playing:false, cursor:null};
+
+/* ---------- helpers ---------- */
+function segments(items){                    // sweep line: weeks with 2+ concurrent
+  const pts=[]; items.forEach(i=>{pts.push([i.s,1]);pts.push([i.e+1,-1])});
+  pts.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  const out=[]; let n=0,from=null;
+  for(const [p,d] of pts){
+    const prev=n; n+=d;
+    if(prev<2 && n>=2) from=p;
+    if(prev>=2 && n<2){ out.push([from,p-1]); from=null; }
+  }
+  return out;
+}
+function pack(items){
+  const sorted=[...items].sort((a,b)=>a.s-b.s||a.e-b.e), lanes=[];
+  for(const it of sorted){
+    let done=false;
+    for(const l of lanes){ if(l[l.length-1].e < it.s){ l.push(it); done=true; break; } }
+    if(!done) lanes.push([it]);
+  }
+  return lanes;
+}
+const visible = () => rows.filter(r=>state.cohorts.has(r.program) && state.kinds.has(r.type));
+
+function groups(){
+  const src = visible();
+  if(state.view==='cohort'){
+    // One bar per course: a team-taught course is a single offering, not three.
+    // Concurrency inside a cohort is the timetable working as designed, so no clash marking here.
+    const m=new Map();
+    src.forEach(r=>{
+      if(!m.has(r.program)) m.set(r.program,new Map());
+      const g=m.get(r.program), k=r.course+'|'+r.term;
+      if(g.has(k)) g.get(k).team.push(r.faculty); else g.set(k,{...r,team:[r.faculty]});
+    });
+    const order=Object.keys(COHORTS);
+    return [...m.entries()]
+      .map(([name,g])=>{ const items=[...g.values()];
+        return {name,items,segs:[],terms:new Set(items.map(i=>i.term)).size}; })
+      .sort((a,b)=>order.indexOf(a.name)-order.indexOf(b.name));
+  }
+  const m=new Map();
+  src.forEach(r=>{ if(!m.has(r.faculty)) m.set(r.faculty,[]); m.get(r.faculty).push(r); });
+  let g=[...m.entries()].map(([name,items])=>({name,items,segs:segments(items)}));
+  g.sort((a,b)=> b.segs.length-a.segs.length || b.items.length-a.items.length || a.name.localeCompare(b.name));
+  if(state.clashOnly) g=g.filter(x=>x.segs.length);
+  return g;
+}
+
+/* ---------- ledger ---------- */
+function ledger(){
+  const all = rows;
+  const byFac = new Map(); all.forEach(r=>{ if(!byFac.has(r.faculty)) byFac.set(r.faculty,[]); byFac.get(r.faculty).push(r); });
+  let clashFac=0, peak=0;
+  const peaks=new Map();
+  byFac.forEach((v,k)=>{ const s=segments(v); if(s.length) clashFac++;
+    let mx=0; for(let d=0;d<TOTAL;d++){ const n=v.filter(r=>r.s<=d&&r.e>=d).length; if(n>mx) mx=n; }
+    peaks.set(k,mx); if(mx>peak) peak=mx; });
+  const atPeak=[...peaks.values()].filter(n=>n===peak).length;
+  const items=[
+    ['<b>'+all.length+'</b><span>course offerings</span>',''],
+    ['<b>'+byFac.size+'</b><span>faculty teaching</span>',''],
+    ['<b>'+new Set(all.map(r=>r.program)).size+'</b><span>cohorts running</span>',''],
+    ['<b>'+clashFac+'</b><span>faculty with overlapping terms</span>','hot'],
+    ['<b>'+peak+'</b><span>heaviest simultaneous load, carried by '+atPeak+'</span>','hot']
+  ];
+  document.getElementById('ledger').innerHTML = items.map(([h,c])=>`<div class="led ${c}">${h}</div>`).join('');
+}
+
+/* ---------- ruler ---------- */
+let rulerBuilt=false;
+function ruler(){
+  if(rulerBuilt) return;
+  rulerBuilt=true;
+  const t=document.getElementById('rulerTrack'); t.innerHTML='';
+  let d=new Date(AX_START), n=0;
+  while(d<=AX_END){
+    const i=Math.round((d-AX_START)/DAY), jan=d.getMonth()===0, first=i===0;
+    const el=document.createElement('div');
+    el.className='mtick'+((jan||first)?' newyear':'');
+    el.style.left=pct(i)+'%';
+    el.innerHTML=`<span class="mo">${d.toLocaleDateString('en-GB',{month:'short'})}</span>`+
+                 ((jan||first)?`<span class="yr">${d.getFullYear()}</span>`:'');
+    el.style.animationDelay=(n*26)+'ms';
+    t.appendChild(el); requestAnimationFrame(()=>el.classList.add('in'));
+    d=new Date(d.getFullYear(),d.getMonth()+1,1); n++;
+  }
+  if(TODAY_IN){
+    const tag=document.createElement('div'); tag.className='todaytag';
+    tag.style.left=pct(Math.round((TODAY-AX_START)/DAY))+'%'; tag.textContent='today';
+    t.appendChild(tag);
+  }
+}
+function placeToday(){
+  const el=document.getElementById('todayLine');
+  if(state.view==='grid' || !TODAY_IN){ el.classList.remove('on'); return; }
+  const nameW=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--namew'));
+  const trackW=inner.clientWidth-nameW;
+  el.style.left=(nameW+trackW*(Math.round((TODAY-AX_START)/DAY)/TOTAL))+'px';
+  el.classList.add('on');
+}
+
+/* ---------- timeline ---------- */
+let firstPaint=true;
+function drawLanes(){
+  const host=document.getElementById('lanes'); host.innerHTML='';
+  const gs=groups();
+  if(!gs.length){ host.innerHTML='<div class="empty">Nothing matches these filters yet. Switch a cohort or kind back on.</div>'; return; }
+  let bi=0;
+  gs.forEach(g=>{
+    const lane=document.createElement('div'); lane.className='lane'; lane.dataset.name=g.name;
+    const clashN=g.segs.length;
+    const nm=document.createElement('div'); nm.className='lane-name';
+    const short=g.name.replace('Prof. ','');
+    const sub = state.view==='cohort'
+      ? `${g.items.length} course${g.items.length>1?'s':''} across ${g.terms} term${g.terms>1?'s':''}`
+      : `${g.items.length} course${g.items.length>1?'s':''}`;
+    nm.innerHTML=`<span class="nm">${short}</span><span class="sub">${sub}`+
+      (clashN?` <span class="flag">${clashN} overlap${clashN>1?'s':''}</span>`:'')+`</span>`;
+    const track=document.createElement('div'); track.className='lane-track';
+
+    g.segs.forEach((s,k)=>{
+      const delay=(firstPaint?700+k*90:120+k*30)+'ms';
+      const b=document.createElement('div'); b.className='band';
+      b.style.left=pct(s[0])+'%'; b.style.width=pct(s[1]-s[0]+1)+'%';
+      b.style.animationDelay=delay;
+      track.appendChild(b); requestAnimationFrame(()=>b.classList.add('in'));
+
+      const n=g.items.filter(i=>i.s<=s[1]&&i.e>=s[0]).length;
+      const rail=document.createElement('div'); rail.className='rail';
+      rail.style.left=pct(s[0])+'%'; rail.style.width=pct(s[1]-s[0]+1)+'%';
+      rail.style.animationDelay=delay;
+      const days=s[1]-s[0]+1;
+      rail.addEventListener('mouseenter',ev=>tip(ev,
+        `${n} courses at once`,
+        `${fmtDay(s[0])} → ${fmtDay(s[1])} · ${days} day${days>1?'s':''} of doubled-up teaching`));
+      rail.addEventListener('mousemove',moveTip);
+      rail.addEventListener('mouseleave',hideTip);
+      track.appendChild(rail); requestAnimationFrame(()=>rail.classList.add('in'));
+    });
+
+    pack(g.items).forEach(laneItems=>{
+      const sr=document.createElement('div'); sr.className='subrow';
+      laneItems.forEach(it=>{
+        const bar=document.createElement('div');
+        bar.className='bar'+(it.type==='E'?' el':'')+(state.sel===it.id?' sel':'');
+        bar.style.left=pct(it.s)+'%'; bar.style.width=pct(it.e-it.s+1)+'%';
+        bar.style.background=COHORTS[it.program].c;
+        bar.style.animationDelay=(firstPaint?120+Math.min(bi,40)*34:Math.min(bi,30)*9)+'ms'; bi++;
+        bar.dataset.id=it.id; bar.dataset.s=it.s; bar.dataset.e=it.e;
+        bar.innerHTML=`<span class="tag">${it.type}</span><span class="lbl">${it.course}</span>`;
+        if(state.view==='cohort')
+          bar.querySelector('.lbl').textContent=it.course+' — '+it.team.map(f=>f.replace('Prof. ','')).join(', ');
+        sr.appendChild(bar); requestAnimationFrame(()=>bar.classList.add('in'));
+      });
+      track.appendChild(sr);
+    });
+    lane.appendChild(nm); lane.appendChild(track); host.appendChild(lane);
+  });
+  firstPaint=false;
+}
+
+/* ---------- month grid ---------- */
+function monthList(){
+  const out=[]; let d=new Date(AX_START);
+  while(d<=AX_END){ out.push(new Date(d)); d=new Date(d.getFullYear(),d.getMonth()+1,1); }
+  return out;
+}
+function drawGrid(){
+  const host=document.getElementById('lanes'); host.innerHTML='';
+  const ms=monthList(), src=visible();
+  const m=new Map(); src.forEach(r=>{ if(!m.has(r.faculty)) m.set(r.faculty,[]); m.get(r.faculty).push(r); });
+  let g=[...m.entries()].map(([n,v])=>({n,v,mx:Math.max(...ms.map(mo=>count(v,mo)))}));
+  g.sort((a,b)=>b.mx-a.mx||a.n.localeCompare(b.n));
+  if(state.clashOnly) g=g.filter(x=>segments(x.v).length);
+  if(!g.length){ host.innerHTML='<div class="empty">Nothing matches these filters yet.</div>'; return; }
+
+  const head=document.createElement('div'); head.className='ghead';
+  head.innerHTML=`<div class="gname">Courses running each month</div>`;
+  const hc=document.createElement('div'); hc.className='gcells';
+  hc.style.gridTemplateColumns=`repeat(${ms.length},1fr)`;
+  ms.forEach(mo=>{ const c=document.createElement('div'); c.className='gcell';
+    c.innerHTML=mo.toLocaleDateString('en-GB',{month:'short'})+(mo.getMonth()===0||mo.getTime()===AX_START.getTime()?'<br>'+mo.getFullYear():'');
+    hc.appendChild(c); });
+  head.appendChild(hc); host.appendChild(head);
+
+  let k=0;
+  g.forEach(({n,v})=>{
+    const row=document.createElement('div'); row.className='grow';
+    row.innerHTML=`<div class="gname">${n.replace('Prof. ','')}</div>`;
+    const cells=document.createElement('div'); cells.className='gcells';
+    cells.style.gridTemplateColumns=`repeat(${ms.length},1fr)`;
+    ms.forEach(mo=>{
+      const list=active(v,mo), nn=list.length;
+      const c=document.createElement('div');
+      c.className='gcell'+(nn?'':' z');
+      c.textContent=nn||'·';
+      c.style.background = LOAD_RAMP(nn);
+      c.style.color = nn===0?'var(--dim2)' : nn===1?'var(--fg)':'#14172a';
+      c.style.animationDelay=(k*7)+'ms'; k++;
+      if(nn){
+        c.title=`${mo.toLocaleDateString('en-GB',{month:'long',year:'numeric'})} — ${nn} running`;
+        c.addEventListener('mouseenter',ev=>tip(ev,`${n.replace('Prof. ','')} · ${mo.toLocaleDateString('en-GB',{month:'long',year:'numeric'})}`,
+          list.map(r=>`${r.course} (${r.program})`).join('<br>')));
+        c.addEventListener('mouseleave',hideTip);
+        c.addEventListener('mousemove',moveTip);
+      }
+      cells.appendChild(c); requestAnimationFrame(()=>c.classList.add('in'));
+    });
+    row.appendChild(cells); host.appendChild(row);
+  });
+}
+// stepped ramp so a lane carrying seven is still distinguishable from one carrying three
+const RAMP=['transparent','rgba(72,202,228,.34)','#ffd166','#ffb03a','#ff8f5c','#ff6b6b','#ff4d6d'];
+const LOAD_RAMP = n => RAMP[Math.min(n,RAMP.length-1)];
+function active(v,mo){
+  const a=Math.round((mo-AX_START)/DAY), b=Math.round((new Date(mo.getFullYear(),mo.getMonth()+1,0)-AX_START)/DAY);
+  return v.filter(r=>r.s<=b && r.e>=a);
+}
+const count=(v,mo)=>active(v,mo).length;
+
+/* ---------- tooltip ---------- */
+const tipEl=document.getElementById('tip');
+function tip(ev,title,body){ tipEl.innerHTML=`<span class="tt">${title}</span><span class="td">${body}</span>`;
+  tipEl.classList.add('on'); moveTip(ev); }
+function moveTip(ev){
+  const r=tipEl.getBoundingClientRect();
+  let x=ev.clientX+15, y=ev.clientY+15;
+  if(x+r.width>innerWidth-10) x=ev.clientX-r.width-15;
+  if(y+r.height>innerHeight-10) y=ev.clientY-r.height-15;
+  tipEl.style.left=x+'px'; tipEl.style.top=y+'px';
+}
+const hideTip=()=>tipEl.classList.remove('on');
+
+/* ---------- detail ---------- */
+const teamFor = r => rows.filter(x=>x.course===r.course&&x.term===r.term&&x.program===r.program).map(x=>x.faculty);
+function openDetail(id){
+  const r=rows.find(x=>x.id===id); if(!r) return;
+  state.sel=id;
+  const mates=rows.filter(x=>x.faculty===r.faculty && x.id!==r.id && x.s<=r.e && x.e>=r.s);
+  const co=COHORTS[r.program];
+  const d=document.getElementById('detail');
+  d.innerHTML=`<button class="close" id="dclose" aria-label="Close">×</button>
+    <h3>${r.course}</h3>
+    <div class="dmeta">
+      <span class="pill"><span class="dot" style="background:${co.hex}"></span>${r.program} · ${r.term}</span>
+      <span class="pill">${KINDS[r.type].n}</span>
+      <span class="pill">${teamFor(r).map(f=>f.replace('Prof. ','')).join(', ')}${teamFor(r).length>1?' (team-taught)':''}</span>
+      <span class="pill">${r.exact?fmt(r.start)+' → '+fmt(r.end):r.label+' (month-level dates)'}</span>
+    </div>
+    <div class="dsec">
+      <h4>${mates.length? 'Also running for '+r.faculty.replace('Prof. ','')+' during these weeks' : 'No other commitment for this faculty member in this window'}</h4>
+      ${mates.map(m=>`<div class="clash"><span class="sw" style="background:${COHORTS[m.program].hex}"></span>
+        <span><span class="k">${m.course}</span><br><span class="who">${m.program} · ${m.term} · ${m.exact?fmt(m.start)+' → '+fmt(m.end):m.label}</span></span></div>`).join('')}
+    </div>`;
+  d.classList.add('open');
+  document.getElementById('dclose').onclick=()=>{ d.classList.remove('open'); state.sel=null; render(); };
+  render(false);
+  d.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ---------- cursor / play ---------- */
+const cursorEl=document.getElementById('cursor'), readout=document.getElementById('readout');
+const inner=document.getElementById('inner');
+function setCursor(dayIdx){
+  state.cursor=dayIdx;
+  if(dayIdx===null){ cursorEl.classList.remove('on');
+    document.querySelectorAll('.bar').forEach(b=>b.classList.remove('off','live'));
+    readout.textContent=HINT; return; }
+  const nameW=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--namew'));
+  const trackW=inner.clientWidth-nameW;
+  cursorEl.classList.add('on');
+  cursorEl.style.left=(nameW + trackW*(dayIdx/TOTAL))+'px';
+  let live=0; const byFac=new Map();
+  document.querySelectorAll('.bar').forEach(b=>{
+    const on = +b.dataset.s<=dayIdx && +b.dataset.e>=dayIdx;
+    b.classList.toggle('off',!on); b.classList.toggle('live',on);
+    if(on){ live++; const r=rows.find(x=>x.id===+b.dataset.id);
+      byFac.set(r.faculty,(byFac.get(r.faculty)||0)+1); }
+  });
+  const dbl=[...byFac.entries()].filter(([,n])=>n>1);
+  const dt=new Date(AX_START.getTime()+dayIdx*DAY);
+  readout.innerHTML=`<b>${dt.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</b> — `+
+    `${live} course${live===1?'':'s'} in session` +
+    (dbl.length? ` · <b style="color:var(--warn)">${dbl.map(([f,n])=>f.replace('Prof. ','')+' ×'+n).join(', ')}</b>`:'');
+}
+let raf=null;
+function play(){
+  if(state.playing){ stop(); return; }
+  state.playing=true;
+  document.getElementById('playIcon').className='sq';
+  document.getElementById('playTxt').textContent='Stop';
+  let t0=null;
+  const step=ts=>{
+    if(!t0) t0=ts;
+    const p=Math.min((ts-t0)/15000,1);
+    setCursor(Math.round(p*(TOTAL-1)));
+    if(p<1 && state.playing) raf=requestAnimationFrame(step); else stop(true);
+  };
+  raf=requestAnimationFrame(step);
+}
+function stop(finished){
+  state.playing=false; if(raf) cancelAnimationFrame(raf);
+  document.getElementById('playIcon').className='tri';
+  document.getElementById('playTxt').textContent='Walk the year';
+  if(finished) setTimeout(()=>{ if(!state.playing) setCursor(null); },1400);
+}
+document.getElementById('playBtn').onclick=play;
+
+/* scrub */
+let scrubbing=false;
+function toDay(clientX){
+  const nameW=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--namew'));
+  const box=inner.getBoundingClientRect();
+  const x=clientX-box.left-nameW, w=inner.clientWidth-nameW;
+  return Math.max(0,Math.min(TOTAL-1,Math.round((x/w)*TOTAL)));
+}
+const coarse = matchMedia('(pointer:coarse)').matches;
+inner.addEventListener('pointerdown',e=>{
+  if(coarse||e.target.closest('.bar')||state.view==='grid') return;
+  scrubbing=true; stop(); setCursor(toDay(e.clientX));
+});
+addEventListener('pointermove',e=>{ if(scrubbing) setCursor(toDay(e.clientX)); });
+addEventListener('pointerup',()=>{ scrubbing=false; });
+
+/* ---------- interactions ---------- */
+document.getElementById('lanes').addEventListener('click',e=>{
+  const b=e.target.closest('.bar'); if(b) openDetail(+b.dataset.id);
+});
+document.getElementById('lanes').addEventListener('mouseover',e=>{
+  const b=e.target.closest('.bar'); if(!b) return;
+  const r=rows.find(x=>x.id===+b.dataset.id);
+  tip(e,r.course,`${r.program} · ${r.term}<br>${r.faculty.replace('Prof. ','')} · ${KINDS[r.type].n}<br>${r.exact?fmt(r.start)+' → '+fmt(r.end):r.label}`);
+});
+document.getElementById('lanes').addEventListener('mousemove',e=>{ if(e.target.closest('.bar')) moveTip(e); });
+document.getElementById('lanes').addEventListener('mouseout',e=>{ if(e.target.closest('.bar')) hideTip(); });
+
+/* ---------- chips ---------- */
+function buildChips(){
+  const ch=document.getElementById('cohorts');
+  ch.innerHTML=Object.keys(COHORTS).filter(k=>rows.some(r=>r.program===k)).map(k=>
+    `<button class="chip" data-k="${k}" aria-pressed="true" style="--ch:${COHORTS[k].hex}">
+      <span class="dot"></span>${k}</button>`).join('');
+  ch.onclick=e=>{ const b=e.target.closest('.chip'); if(!b) return;
+    const k=b.dataset.k, on=b.getAttribute('aria-pressed')==='true';
+    if(on&&state.cohorts.size===1) return;
+    on?state.cohorts.delete(k):state.cohorts.add(k);
+    b.setAttribute('aria-pressed',String(!on)); render(); };
+
+  const kn=document.getElementById('kinds');
+  kn.innerHTML=Object.keys(KINDS).filter(k=>rows.some(r=>r.type===k)).map(k=>
+    `<button class="chip plain" data-k="${k}" aria-pressed="true">${KINDS[k].n}</button>`).join('');
+  kn.onclick=e=>{ const b=e.target.closest('.chip'); if(!b) return;
+    const k=b.dataset.k, on=b.getAttribute('aria-pressed')==='true';
+    if(on&&state.kinds.size===1) return;
+    on?state.kinds.delete(k):state.kinds.add(k);
+    b.setAttribute('aria-pressed',String(!on)); render(); };
+
+  const sel=document.getElementById('fac');
+  const fs=[...new Set(rows.map(r=>r.faculty))].sort();
+  sel.innerHTML='<option value="all">Everyone</option>'+fs.map(f=>`<option value="${f}">${f.replace('Prof. ','')}</option>`).join('');
+  sel.onchange=()=>{ state.fac=sel.value; render(); };
+
+  const co=document.getElementById('clashOnly');
+  co.onclick=()=>{ state.clashOnly=!state.clashOnly; co.setAttribute('aria-pressed',String(state.clashOnly)); render(); };
+
+  document.getElementById('view').onclick=e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    state.view=b.dataset.view;
+    [...e.currentTarget.children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+    setCursor(null); stop(); render();
+  };
+}
+
+/* ---------- legend + notes ---------- */
+function legend(){
+  document.getElementById('legCohort').innerHTML=Object.entries(COHORTS)
+    .filter(([k])=>rows.some(r=>r.program===k))
+    .map(([k,v])=>`<li><span class="sw" style="background:${v.hex}"></span><span><span class="k">${k}</span> — ${v.desc}</span></li>`).join('');
+  document.getElementById('legKind').innerHTML=Object.entries(KINDS)
+    .map(([k,v])=>`<li><span class="sw" style="background:var(--rule2);display:grid;place-items:center;font-size:.58rem;font-weight:700;color:var(--fg)">${k}</span><span><span class="k">${v.n}</span> — ${v.d}</span></li>`).join('');
+
+  const n=document.getElementById('notes'), trays=[];
+  if(undated.length) trays.push(`<div class="tray"><span class="t">${undated.length} course${undated.length>1?'s have':' has'} no term dates</span>
+      ${undated.map(u=>`${u.course} — ${u.program}, ${u.term}`).join('<br>')}<br>
+      <span style="color:var(--dim2)">The term sheet has no timeline for ${undated.length>1?'these, so they cannot be':'this, so it cannot be'} placed on the chart.</span></div>`);
+  if(DUPES.length) trays.push(`<div class="tray"><span class="t">${DUPES.length===1?'One row is':DUPES.length+' rows are'} entered twice</span>
+      ${DUPES.map(d=>`${d.course} — ${d.faculty}, ${d.program}, ${d.term}`).join('<br>')}. Counted once here.</div>`);
+  if(EMPTY_TERMS.length) trays.push(`<div class="tray"><span class="t">${EMPTY_TERMS.length===1?'A term':EMPTY_TERMS.length+' terms'} with no courses</span>
+      ${EMPTY_TERMS.map(t=>`${t.program} ${t.term} (${t.label})`).join('<br>')} — dated in the term sheet, but nothing is listed against ${EMPTY_TERMS.length===1?'it':'them'}.</div>`);
+  const N=['','One thing','Two things','Three things','Four things'][trays.length]||trays.length+' things';
+  document.getElementById('notesHead').textContent = trays.length ? 'Gaps in the source sheet' : 'Source sheet';
+  n.innerHTML = trays.length
+    ? `<p class="note">${N} in the sheet still ${trays.length===1?'needs':'need'} attention. Everything else places cleanly.</p>`+trays.join('')
+    : `<p class="note">Every course carries a dated term and nothing is duplicated. The chart reflects the sheet in full.</p>`;
+}
+
+/* ---------- render ---------- */
+function render(animate=true){
+  document.querySelectorAll('.lane').forEach(l=>l.classList.remove('dim'));
+  const pb=document.getElementById('playBtn');
+  pb.style.display = state.view==='grid' ? 'none' : '';
+  if(state.view==='grid'){
+    readout.innerHTML='A course counts in every month it touches. Colour deepens with load — '+
+      [1,2,3,4,5,6].map(n=>`<b style="background:${LOAD_RAMP(n)};color:${n===1?'var(--fg)':'#14172a'};padding:1px 6px;border-radius:3px">${n===6?'6+':n}</b>`).join(' ');
+    document.getElementById('rulerName').textContent='Faculty member';
+    document.getElementById('rulerTrack').style.display='none';
+    document.querySelector('.ruler').style.display='none';
+    drawGrid();
+  } else {
+    if(state.cursor===null) readout.textContent=HINT;
+    document.querySelector('.ruler').style.display='grid';
+    document.getElementById('rulerTrack').style.display='block';
+    document.getElementById('rulerName').textContent = state.view==='cohort'?'Cohort':'Faculty member';
+    ruler(); drawLanes();
+    if(state.fac!=='all' && state.view==='faculty'){
+      document.querySelectorAll('.lane').forEach(l=>{ if(l.dataset.name!==state.fac) l.classList.add('dim'); });
+    }
+    if(state.fac!=='all' && state.view==='cohort'){
+      document.querySelectorAll('.bar').forEach(b=>{
+        const r=rows.find(x=>x.id===+b.dataset.id); if(r.faculty!==state.fac) b.classList.add('off');
+      });
+    }
+  }
+  placeToday();
+  if(state.cursor!==null && state.view!=='grid') setCursor(state.cursor);
+}
+addEventListener('resize',()=>{ placeToday(); if(state.cursor!==null) setCursor(state.cursor); });
+
+const HINT = matchMedia('(pointer:coarse)').matches
+  ? 'Press play to sweep through the year and see what is running in any given week.'
+  : 'Drag across the chart, or press play, to see what is running in any given week.';
+document.getElementById('readout').textContent=HINT;
+// keep every month at a legible width, however long the span turns out to be
+const NMONTHS = (AX_END.getFullYear()-AX_START.getFullYear())*12 + (AX_END.getMonth()-AX_START.getMonth()) + 1;
+inner.style.setProperty('--mw',
+  Math.max(1180, parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--namew')) + NMONTHS*62)+'px');
+
+const mY = d => d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+document.getElementById('span').textContent =
+  `Every doctoral course from ${mY(AX_START)} to ${mY(AX_END)}`;
+ledger(); buildChips(); legend(); render();
+</script>
