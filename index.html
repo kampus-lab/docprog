@@ -62,6 +62,12 @@ select{background:var(--ink2);color:var(--fg);border:1px solid var(--rule2);bord
 .play .tri{width:0;height:0;border-left:8px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent}
 .play .sq{width:8px;height:8px;background:currentColor}
 .readout{font-size:.82rem;color:var(--dim);min-height:1.3em}
+.src{font-size:.76rem;color:var(--dim2);margin-left:auto;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.src .led2{width:7px;height:7px;border-radius:50%;background:var(--dim2);flex:none}
+.src.live .led2{background:var(--c-pt08);box-shadow:0 0 8px var(--c-pt08)}
+.src.warn .led2{background:var(--c-dpm20)}
+.src button{text-decoration:underline;text-underline-offset:2px;color:var(--dim)}
+.src button:hover{color:var(--fg)}
 .readout b{color:var(--fg);font-weight:600}
 
 /* ---------- chart ---------- */
@@ -250,6 +256,7 @@ select{background:var(--ink2);color:var(--fg);border:1px solid var(--rule2);bord
   <div class="playbar" style="margin-top:18px">
     <button class="play" id="playBtn"><span class="tri" id="playIcon"></span><span id="playTxt">Walk the year</span></button>
     <span class="readout" id="readout"></span>
+    <span class="src" id="src"></span>
   </div>
 
   <div class="panel">
@@ -293,7 +300,149 @@ select{background:var(--ink2);color:var(--fg);border:1px solid var(--rule2);bord
 <div class="tip" id="tip"></div>
 
 <script>
-const DATA = {"records":[{"course":"Contemporary Theories for Information Systems Research","term":"Term 4","faculty":"Prof. Satish Krishnan","type":"AC","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Mathematics for Information Systems Research","term":"Term 4","faculty":"Prof. M P Sebastian","type":"E","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Systems Thinking for Sustainability","term":"Term 4","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Accessible Information System","term":"Term 4","faculty":"Prof. Sreejith A","type":"E","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Methods in Management Research","term":"Term 5","faculty":"Prof. Anindita Paul","type":"AC","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"Artificial Intelligence for Business and Management Research","term":"Term 5","faculty":"Prof. M P Sebastian","type":"E","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"Design Science Research","term":"Term 5","faculty":"Prof. Kalpit Sharma","type":"E","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"AI Security","term":"Term 5","faculty":"Prof. Sreejith A","type":"E","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"Topics in Information Systems Research","term":"Term 6","faculty":"Prof. Vidushi Pandey","type":"AC","program":"DPM 19","start":"2026-12-30","end":"2027-03-12","label":"30 December 2026 to 12 March 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Term 6","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 19","start":"2026-12-30","end":"2027-03-12","label":"30 December 2026 to 12 March 2027","exact":true},{"course":"Responsible AI : Ethics, Governance, and Society","term":"Term 6","faculty":"Prof. Anindita Paul","type":"E","program":"DPM 19","start":"2026-12-30","end":"2027-03-12","label":"30 December 2026 to 12 March 2027","exact":true},{"course":"Management Information Systems","term":"Semester 1","faculty":"Prof. Radhakrishna Pillai","type":"MF","program":"DPM 20","start":"2026-06-29","end":"2026-10-30","label":"29 June 2026 to 30 October 2026","exact":true},{"course":"Management Information Systems","term":"Semester 1","faculty":"Prof. Vidushi Pandey","type":"MF","program":"DPM 20","start":"2026-06-29","end":"2026-10-30","label":"29 June 2026 to 30 October 2026","exact":true},{"course":"Management Information Systems","term":"Semester 1","faculty":"Prof. Swati Jain","type":"MF","program":"DPM 20","start":"2026-06-29","end":"2026-10-30","label":"29 June 2026 to 30 October 2026","exact":true},{"course":"Perspectives in Information Systems Research","term":"Semester 2","faculty":"Prof. Vidushi Pandey","type":"AC","program":"DPM 20","start":"2026-11-12","end":"2027-03-13","label":"12 November 2026 to 13 March 2027","exact":true},{"course":"Contemporary Theories for Information Systems Research","term":"Semester 2","faculty":"Prof. Satish Krishnan","type":"AC","program":"DPM 20","start":"2026-11-12","end":"2027-03-13","label":"12 November 2026 to 13 March 2027","exact":true},{"course":"Methods in Management Research","term":"Semester 2","faculty":"Prof. Kalpit Sharma","type":"AC","program":"DPM 20","start":"2026-11-12","end":"2027-03-13","label":"12 November 2026 to 13 March 2027","exact":true},{"course":"Digital Transformation","term":"Semester 3","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Design Science Research","term":"Semester 3","faculty":"Prof. Kalpit Sharma","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Accessible Information System","term":"Semester 3","faculty":"Prof. Sreejith A","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"AI Security","term":"Semester 3","faculty":"Prof. Sreejith A","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Perspectives on AI in Management Research","term":"Semester 3","faculty":"Prof. Swati Jain","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Responsible AI : Ethics, Governance, and Society","term":"Semester 3","faculty":"Prof. Anindita Paul","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Semester 3","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Systems Thinking for Sustainability","term":"Semester 3","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Academic Writing and Scholarly Communication","term":"Semester 2","faculty":"Prof. Satish Krishnan","type":"AN","program":"DPM 20","start":"2026-11-12","end":"2027-03-13","label":"12 November 2026 to 13 March 2027","exact":true},{"course":"Perspectives in Information Systems Research","term":"Semester 1","faculty":"Prof. Anindita Paul","type":"AC","program":"DPM-PT 07","start":"2025-10-01","end":"2026-03-31","label":"October 2025 to March 2026","exact":false},{"course":"AI Security","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-PT 07","start":"2026-04-01","end":"2026-09-30","label":"April 2026 to September 2026","exact":false},{"course":"Perspectives in Information Systems Research","term":"Semester 2","faculty":"Prof. Anindita Paul","type":"AC","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Accessible Information System","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"AI Security","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Perspectives on AI in Management Research","term":"Semester 2","faculty":"Prof. Swati Jain","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Systems Thinking for Sustainability","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Digital Transformation","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Perspectives in Information Systems Research","term":"Semester 2","faculty":"Prof. Swati Jain","type":"AC","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Accessible Information System","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"AI Security","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Perspectives on AI in Management Research","term":"Semester 2","faculty":"Prof. Swati Jain","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Digital Transformation","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Systems Thinking for Sustainability","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Academic Writing and Scholarly Communication","term":"Semester 2","faculty":"Prof. Vidushi Pandey","type":"AN","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true}],"dupes":[],"emptyTerms":[],"kinds":[{"code":"MF","name":"Management foundation"},{"code":"AC","name":"Area core"},{"code":"E","name":"Elective"},{"code":"AN","name":"Area neutral"}]};
+/* ============================================================
+   DATA SOURCE
+   Leave SHEET_ID empty to use the embedded snapshot below.
+   To read live from Google Sheets instead:
+     1. In the Sheet: Share > General access > Anyone with the link > Viewer
+     2. Copy the ID from the URL:
+        docs.google.com/spreadsheets/d/THIS_PART_HERE/edit
+     3. Paste it between the quotes on the next line.
+   Tabs must keep the names Courses, TermSemester and Legend.
+   You can also override per-visit with ?sheet=THE_ID in the address bar.
+   ============================================================ */
+const SHEET_ID = "157YaxZzjBOVHZ8vSykGAw4LbYriR2MpBOrr3Y3yDIB4";
+
+const SNAPSHOT = {"records":[{"course":"Contemporary Theories for Information Systems Research","term":"Term 4","faculty":"Prof. Satish Krishnan","type":"AC","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Mathematics for Information Systems Research","term":"Term 4","faculty":"Prof. M P Sebastian","type":"E","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Systems Thinking for Sustainability","term":"Term 4","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Accessible Information System","term":"Term 4","faculty":"Prof. Sreejith A","type":"E","program":"DPM 19","start":"2026-06-10","end":"2026-08-20","label":"10 June 2026 to 20 August 2026","exact":true},{"course":"Methods in Management Research","term":"Term 5","faculty":"Prof. Anindita Paul","type":"AC","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"Artificial Intelligence for Business and Management Research","term":"Term 5","faculty":"Prof. M P Sebastian","type":"E","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"Design Science Research","term":"Term 5","faculty":"Prof. Kalpit Sharma","type":"E","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"AI Security","term":"Term 5","faculty":"Prof. Sreejith A","type":"E","program":"DPM 19","start":"2026-09-09","end":"2026-11-19","label":"9 September 2026 to 19 November 2026","exact":true},{"course":"Topics in Information Systems Research","term":"Term 6","faculty":"Prof. Vidushi Pandey","type":"AC","program":"DPM 19","start":"2026-12-30","end":"2027-03-12","label":"30 December 2026 to 12 March 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Term 6","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 19","start":"2026-12-30","end":"2027-03-12","label":"30 December 2026 to 12 March 2027","exact":true},{"course":"Responsible AI : Ethics, Governance, and Society","term":"Term 6","faculty":"Prof. Anindita Paul","type":"E","program":"DPM 19","start":"2026-12-30","end":"2027-03-12","label":"30 December 2026 to 12 March 2027","exact":true},{"course":"Management Information Systems","term":"Semester 1","faculty":"Prof. Radhakrishna Pillai","type":"MF","program":"DPM 20","start":"2026-06-29","end":"2026-10-30","label":"29 June 2026 to 30 October 2026","exact":true},{"course":"Management Information Systems","term":"Semester 1","faculty":"Prof. Vidushi Pandey","type":"MF","program":"DPM 20","start":"2026-06-29","end":"2026-10-30","label":"29 June 2026 to 30 October 2026","exact":true},{"course":"Management Information Systems","term":"Semester 1","faculty":"Prof. Swati Jain","type":"MF","program":"DPM 20","start":"2026-06-29","end":"2026-10-30","label":"29 June 2026 to 30 October 2026","exact":true},{"course":"Perspectives in Information Systems Research","term":"Semester 2","faculty":"Prof. Vidushi Pandey","type":"AC","program":"DPM 20","start":"2026-11-12","end":"2027-03-13","label":"12 November 2026 to 13 March 2027","exact":true},{"course":"Contemporary Theories for Information Systems Research","term":"Semester 2","faculty":"Prof. Satish Krishnan","type":"AC","program":"DPM 20","start":"2026-11-12","end":"2027-03-13","label":"12 November 2026 to 13 March 2027","exact":true},{"course":"Methods in Management Research","term":"Semester 2","faculty":"Prof. Kalpit Sharma","type":"AC","program":"DPM 20","start":"2026-11-12","end":"2027-03-13","label":"12 November 2026 to 13 March 2027","exact":true},{"course":"Digital Transformation","term":"Semester 3","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Design Science Research","term":"Semester 3","faculty":"Prof. Kalpit Sharma","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Accessible Information System","term":"Semester 3","faculty":"Prof. Sreejith A","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"AI Security","term":"Semester 3","faculty":"Prof. Sreejith A","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Perspectives on AI in Management Research","term":"Semester 3","faculty":"Prof. Swati Jain","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Responsible AI : Ethics, Governance, and Society","term":"Semester 3","faculty":"Prof. Anindita Paul","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Semester 3","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Systems Thinking for Sustainability","term":"Semester 3","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM 20","start":"2027-06-11","end":"2027-10-18","label":"11 June 2027 to 18 October 2027","exact":true},{"course":"Academic Writing and Scholarly Communication","term":"Semester 2","faculty":"Prof. Satish Krishnan","type":"AN","program":"DPM 20","start":"2026-11-12","end":"2027-03-13","label":"12 November 2026 to 13 March 2027","exact":true},{"course":"Perspectives in Information Systems Research","term":"Semester 1","faculty":"Prof. Anindita Paul","type":"AC","program":"DPM-PT 07","start":"2025-10-01","end":"2026-03-31","label":"October 2025 to March 2026","exact":false},{"course":"AI Security","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-PT 07","start":"2026-04-01","end":"2026-09-30","label":"April 2026 to September 2026","exact":false},{"course":"Perspectives in Information Systems Research","term":"Semester 2","faculty":"Prof. Anindita Paul","type":"AC","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Accessible Information System","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"AI Security","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Perspectives on AI in Management Research","term":"Semester 2","faculty":"Prof. Swati Jain","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Systems Thinking for Sustainability","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Digital Transformation","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-PT 08","start":"2026-11-21","end":"2027-03-23","label":"21 November 2026 to 23 March 2027","exact":true},{"course":"Perspectives in Information Systems Research","term":"Semester 2","faculty":"Prof. Swati Jain","type":"AC","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Accessible Information System","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"AI Security","term":"Semester 2","faculty":"Prof. Sreejith A","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Perspectives on AI in Management Research","term":"Semester 2","faculty":"Prof. Swati Jain","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Responsible Innovation for Emerging Technologies","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Digital Transformation","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Systems Thinking for Sustainability","term":"Semester 2","faculty":"Prof. Radhakrishna Pillai","type":"E","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true},{"course":"Academic Writing and Scholarly Communication","term":"Semester 2","faculty":"Prof. Vidushi Pandey","type":"AN","program":"DPM-TT 01","start":"2026-11-22","end":"2027-03-23","label":"22 November 2026 to 23 March 2027","exact":true}],"dupes":[],"emptyTerms":[],"kinds":[{"code":"MF","name":"Management foundation"},{"code":"AC","name":"Area core"},{"code":"E","name":"Elective"},{"code":"AN","name":"Area neutral"}]};
+
+/* ---------- Google Sheets loader ---------- */
+const CSV_URL = (id,tab) =>
+  `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
+
+function parseCSV(text){
+  const rows=[]; let row=[], f='', q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; }
+      else f+=c;
+    } else if(c==='"') q=true;
+    else if(c===','){ row.push(f); f=''; }
+    else if(c==='\n'){ row.push(f); rows.push(row); row=[]; f=''; }
+    else if(c!=='\r') f+=c;
+  }
+  if(f.length||row.length){ row.push(f); rows.push(row); }
+  return rows.filter(r=>r.some(v=>v.trim()!==''));
+}
+
+const MONTHS={january:0,february:1,march:2,april:3,may:4,june:5,july:6,
+              august:7,september:8,october:9,november:10,december:11};
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+function parseSpan(s){                         // "10 June 2026 to 20 August 2026" | "April 2026 to September 2026"
+  const parts = String(s).split(/\s+to\s+/i);
+  if(parts.length!==2) return null;
+  const one = (t,end) => {
+    const m = t.trim().match(/^(?:(\d{1,2})\s+)?([A-Za-z]+)\s+(\d{4})$/);
+    if(!m || !(m[2].toLowerCase() in MONTHS)) return null;
+    const mo=MONTHS[m[2].toLowerCase()], yr=+m[3];
+    if(m[1]) return [new Date(yr,mo,+m[1]), true];
+    return [end ? new Date(yr,mo+1,0) : new Date(yr,mo,1), false];   // whole month when no day given
+  };
+  const a=one(parts[0],false), b=one(parts[1],true);
+  if(!a||!b) return null;
+  return {start:iso(a[0]), end:iso(b[0]), label:String(s).trim(), exact:a[1]&&b[1]};
+}
+
+const tidy = t => String(t??'').trim().replace(/[\s\u2010-\u2015-]+$/,'');
+
+function pick(header, ...wanted){               // tolerant column lookup
+  const h = header.map(x=>String(x).trim().toLowerCase());
+  for(const w of wanted){ const i=h.indexOf(w); if(i>=0) return i; }
+  for(const w of wanted){ const i=h.findIndex(x=>x.includes(w)); if(i>=0) return i; }
+  return -1;
+}
+
+function normalise(courses, terms, legend){
+  const th=terms[0], ti=pick(th,'term/semester','term'), tp=pick(th,'program'), tt=pick(th,'timeline');
+  const tl=new Map();
+  for(const r of terms.slice(1)){
+    if(!r[ti]||!r[tp]||!r[tt]) continue;
+    const span=parseSpan(r[tt]);
+    if(span) tl.set(String(r[tp]).trim()+'||'+String(r[ti]).trim(), span);
+  }
+
+  const ch=courses[0];
+  const cC=pick(ch,'course'), cT=pick(ch,'term/semester','term'), cF=pick(ch,'faculty member','faculty'),
+        cK=pick(ch,'course type','type'), cP=pick(ch,'program');
+  const seen=new Set(), dupes=[], records=[];
+  for(const r of courses.slice(1)){
+    if(!r[cC]||!r[cP]) continue;
+    const course=tidy(r[cC]), term=String(r[cT]).trim(), fac=String(r[cF]).trim(),
+          type=String(r[cK]).trim(), prog=String(r[cP]).trim();
+    const key=[course,term,fac,type,prog].join('|');
+    if(seen.has(key)){ dupes.push({course,term,faculty:fac.replace(/Prof\.\s*/g,''),program:prog}); continue; }
+    seen.add(key);
+    const span = tl.get(prog+'||'+term) || {start:null,end:null,label:null,exact:false};
+    for(const f of fac.split(',').map(x=>x.trim()).filter(Boolean))
+      records.push({course,term,faculty:f,type,program:prog,...span});
+  }
+
+  const emptyTerms=[];
+  for(const [k,v] of tl){
+    const [p,t]=k.split('||');
+    if(!records.some(r=>r.program===p&&r.term===t)) emptyTerms.push({program:p,term:t,label:v.label});
+  }
+
+  const lh=legend[0]||[];
+  const looksHeader = String(lh[0]).trim().toLowerCase()==='code' || String(lh[0]).trim().toLowerCase()==='type';
+  const kinds=(looksHeader?legend.slice(1):legend)
+    .filter(r=>r[0]&&r[1])
+    .map(r=>{ const n=String(r[1]).trim(); return {code:String(r[0]).trim(), name:n[0].toUpperCase()+n.slice(1).toLowerCase()}; });
+
+  if(!records.length) throw new Error('no course rows found');
+  return {records, dupes, emptyTerms, kinds:kinds.length?kinds:SNAPSHOT.kinds};
+}
+
+async function fromSheet(id){
+  const grab = async tab => {
+    const res = await fetch(CSV_URL(id,tab), {redirect:'follow'});
+    if(!res.ok) throw new Error(`${tab} tab returned ${res.status}`);
+    const txt = await res.text();
+    if(/^\s*</.test(txt)) throw new Error(`${tab} tab is not shared publicly`);
+    return parseCSV(txt);
+  };
+  const [c,t,l] = await Promise.all([grab('Courses'), grab('TermSemester'), grab('Legend')]);
+  return normalise(c,t,l);
+}
+
+function showSource(mode, detail){
+  const el=document.getElementById('src');
+  el.className='src'+(mode==='live'?' live':mode==='warn'?' warn':'');
+  const stamp=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  if(mode==='live')
+    el.innerHTML=`<span class="led2"></span>Live from Google Sheets, read at ${stamp} <button id="rf">Refresh</button>`;
+  else if(mode==='warn')
+    el.innerHTML=`<span class="led2"></span>Sheet unavailable (${detail}) — showing the built-in copy <button id="rf">Retry</button>`;
+  else
+    el.innerHTML=`<span class="led2"></span>Built-in copy of the spreadsheet`;
+  const rf=document.getElementById('rf');
+  if(rf) rf.onclick=()=>location.reload();
+}
+
+let ACTIVE = SNAPSHOT;
+
+(async ()=>{
+  const id = new URLSearchParams(location.search).get('sheet') || SHEET_ID;
+  if(id){
+    try { ACTIVE = await fromSheet(id); showSource('live'); }
+    catch(e){ showSource('warn', e.message); }
+  } else showSource('snapshot');
+  start();
+})();
+
+function start(){
+const DATA = ACTIVE;
 const DAY = 864e5;
 const AX = (()=>{                       // span the whole sheet, whatever dates it holds
   const d = DATA.records.filter(r=>r.start);
@@ -775,4 +924,5 @@ const mY = d => d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
 document.getElementById('span').textContent =
   `Every doctoral course from ${mY(AX_START)} to ${mY(AX_END)}`;
 ledger(); buildChips(); legend(); render();
+}
 </script>
